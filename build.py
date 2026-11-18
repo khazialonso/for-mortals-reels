@@ -139,12 +139,12 @@ def fit_text(draw, text, max_w, max_h, start=120, minimum=56):
 
 # ---------- озвучка ----------
 
-async def _tts(text, mp3):
+async def _edge(text, mp3, boundary, rate):
     import edge_tts
-    try:
-        comm = edge_tts.Communicate(text, VOICE, rate=TTS_RATE, boundary="WordBoundary")
-    except TypeError:
-        comm = edge_tts.Communicate(text, VOICE, rate=TTS_RATE)
+    kw = {"rate": rate}
+    if boundary:
+        kw["boundary"] = boundary
+    comm = edge_tts.Communicate(text, VOICE, **kw)
     words = []
     with open(mp3, "wb") as f:
         async for ch in comm.stream():
@@ -157,7 +157,25 @@ async def _tts(text, mp3):
 
 
 def tts(text, mp3):
-    return asyncio.run(_tts(text, mp3))
+    """edge-tts с повторами; если сервис Microsoft не отвечает — Google TTS."""
+    import time
+    errors = []
+    for boundary, rate in [("WordBoundary", TTS_RATE), (None, TTS_RATE), (None, "+0%")]:
+        for attempt in range(2):
+            try:
+                words = asyncio.run(_edge(text, mp3, boundary, rate))
+                if os.path.getsize(mp3) > 1000:
+                    return words
+            except Exception as e:
+                errors.append(f"edge({boundary},{rate}): {e}")
+            time.sleep(3)
+    log("edge-tts не ответил:", " | ".join(errors[-2:]))
+    from gtts import gTTS
+    raw = mp3 + ".g.mp3"
+    gTTS(text, lang="ru").save(raw)
+    run(["ffmpeg", "-y", "-i", raw, "-filter:a", "atempo=1.2", mp3])
+    log("озвучка: Google TTS (запасной голос)")
+    return []
 
 
 def align_words(text, words, total):
@@ -486,7 +504,7 @@ def build(item, work):
 
 
 def upload(item, video, cover):
-    stamp = dt.datetime.utcnow().strftime("%Y%m%d-%H%M")
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d-%H%M")
     tag = f"reel-{item['table']}-{item['row']}-{stamp}"
     run(["gh", "release", "create", tag, video, cover, "--title", tag,
          "--notes", f"{item['table']} строка {item['row']} ({item.get('date', '')})"])
@@ -508,7 +526,7 @@ def main():
         sys.exit("нет REELS_WEBAPP_URL или REELS_KEY")
     items = fetch_queue()
     log(f"в очереди: {len(items)}")
-    now = dt.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+    now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M")
     for item in items[:MAX_ITEMS]:
         log(f"== {item['table']} строка {item['row']}")
         work = Path(tempfile.mkdtemp())
