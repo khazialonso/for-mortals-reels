@@ -38,6 +38,7 @@ jobs:
         env:
           REELS_WEBAPP_URL: ${{ secrets.REELS_WEBAPP_URL }}
           REELS_KEY: ${{ secrets.REELS_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           GH_TOKEN: ${{ github.token }}
         run: python build.py
