@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H, FPS = 1080, 1920, 30
 VOICE = os.environ.get("TTS_VOICE", "ru-RU-DmitryNeural")
-TTS_RATE = os.environ.get("TTS_RATE", "+8%")
+TTS_RATE = os.environ.get("TTS_RATE", "+15%")
 MAX_ITEMS = int(os.environ.get("MAX_ITEMS", "2"))
 TAIL = 0.6  # секунд тишины после озвучки
 UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 "
