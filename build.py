@@ -33,6 +33,7 @@ UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.
 WEBAPP_URL = os.environ.get("REELS_WEBAPP_URL", "")
 REELS_KEY = os.environ.get("REELS_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
+PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "")
 REPO = os.environ.get("GITHUB_REPOSITORY", "")
 
 FONT_CANDIDATES = [
@@ -334,21 +335,36 @@ def site_shot(url, out):
     im.save(out)
 
 
-def pexels_clip(query, out):
-    if not PEXELS_KEY:
-        raise RuntimeError("нет PEXELS_API_KEY")
-    r = requests.get("https://api.pexels.com/videos/search",
-                     params={"query": query, "orientation": "portrait", "per_page": 10},
-                     headers={"Authorization": PEXELS_KEY}, timeout=30)
-    r.raise_for_status()
-    vids = [v for v in r.json().get("videos", []) if v.get("duration", 0) >= 4]
-    if not vids:
-        raise RuntimeError(f"pexels: ничего по «{query}»")
-    v = random.choice(vids[:5])
-    files = [f for f in v["video_files"] if f.get("height") and f["height"] >= f.get("width", 0) and f["height"] >= 1280]
-    files = files or [f for f in v["video_files"] if f.get("height")]
-    f = min(files, key=lambda x: abs(x["height"] - 1920))
-    with requests.get(f["link"], stream=True, timeout=60) as rr:
+def stock_clip(query, out):
+    """Стоковое видео с Pixabay (бесплатный ключ). Pexels — запасной, если есть ключ."""
+    if PIXABAY_KEY:
+        r = requests.get("https://pixabay.com/api/videos/",
+                         params={"key": PIXABAY_KEY, "q": query, "per_page": 20,
+                                 "safesearch": "true", "min_height": 720}, timeout=30)
+        r.raise_for_status()
+        hits = [h for h in r.json().get("hits", []) if h.get("duration", 0) >= 4]
+        if not hits:
+            raise RuntimeError(f"pixabay: ничего по «{query}»")
+        # сначала вертикальные ролики, среди них случайный из первых пяти
+        hits.sort(key=lambda h: h["videos"]["medium"].get("height", 0) <= h["videos"]["medium"].get("width", 1))
+        h = random.choice(hits[:5])
+        v = h["videos"].get("medium") or h["videos"].get("small")
+        link = v["url"]
+    elif PEXELS_KEY:
+        r = requests.get("https://api.pexels.com/videos/search",
+                         params={"query": query, "orientation": "portrait", "per_page": 10},
+                         headers={"Authorization": PEXELS_KEY}, timeout=30)
+        r.raise_for_status()
+        vids = [v for v in r.json().get("videos", []) if v.get("duration", 0) >= 4]
+        if not vids:
+            raise RuntimeError(f"pexels: ничего по «{query}»")
+        v = random.choice(vids[:5])
+        files = [f for f in v["video_files"] if f.get("height") and f["height"] >= 1280]
+        files = files or [f for f in v["video_files"] if f.get("height")]
+        link = min(files, key=lambda x: abs(x["height"] - 1920))["link"]
+    else:
+        raise RuntimeError("нет PIXABAY_API_KEY")
+    with requests.get(link, stream=True, timeout=60, headers={"User-Agent": UA}) as rr:
         rr.raise_for_status()
         with open(out, "wb") as fh:
             for chunk in rr.iter_content(1 << 20):
@@ -409,7 +425,7 @@ def render_scene(sc, dur, idx, item, work):
             return out
         if kind == "stock":
             clip = str(work / f"stock{idx}.mp4")
-            pexels_clip(sc["param"] or "technology", clip)
+            stock_clip(sc["param"] or "technology", clip)
             render_clip(clip, dur, out, overlay)
             return out
         if kind == "cover":
