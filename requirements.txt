@@ -2,3 +2,4 @@ edge-tts>=7.0.0
 playwright>=1.48
 requests>=2.32
 Pillow>=10.4
+gTTS>=2.5
