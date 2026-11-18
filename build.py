@@ -37,6 +37,7 @@ PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "")
 REPO = os.environ.get("GITHUB_REPOSITORY", "")
 
 FONT_CANDIDATES = [
+    os.path.abspath("fonts/Montserrat-ExtraBold.ttf"),
     "/usr/share/fonts/truetype/montserrat/Montserrat-ExtraBold.ttf",
     "/usr/share/fonts/opentype/montserrat/Montserrat-ExtraBold.otf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -312,7 +313,10 @@ def og_image(url, out):
 def site_shot(url, out):
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
-        b = p.chromium.launch()
+        try:
+            b = p.chromium.launch(channel="chrome")
+        except Exception:
+            b = p.chromium.launch()
         ctx = b.new_context(viewport={"width": 432, "height": 768}, device_scale_factor=2.5,
                             user_agent=UA, is_mobile=True, has_touch=True, locale="en-US")
         page = ctx.new_page()
