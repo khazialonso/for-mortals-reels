@@ -1,0 +1,54 @@
+name: build-reels
+
+on:
+  schedule:
+    - cron: "40 4 * * *"   # 11:40 по Самуи, после агента REELS (11:17)
+    - cron: "40 7 * * *"   # 14:40 по Самуи, повтор на случай сбоя
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-reels
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ffmpeg fonts-montserrat fonts-dejavu-core
+
+      - name: Python packages
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Build reels
+        env:
+          REELS_WEBAPP_URL: ${{ secrets.REELS_WEBAPP_URL }}
+          REELS_KEY: ${{ secrets.REELS_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: python build.py
+
+      - name: Save build log
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain log)" ]; then
+            git config user.name "reels-bot"
+            git config user.email "reels-bot@users.noreply.github.com"
+            git add log
+            git commit -m "build log $(date -u +%F)"
+            git push
+          fi
