@@ -24,15 +24,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: System packages
+      - name: ffmpeg and font
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q ffmpeg fonts-montserrat fonts-dejavu-core
+          mkdir -p "$HOME/bin" fonts
+          if ! command -v ffmpeg >/dev/null; then
+            curl -fsSL --retry 3 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ff.tar.xz \
+              && tar -xf ff.tar.xz && cp ffmpeg-*-static/ffmpeg ffmpeg-*-static/ffprobe "$HOME/bin/" \
+              || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
+          fi
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          curl -fsSL --retry 3 -o fonts/Montserrat-ExtraBold.ttf \
+            https://raw.githubusercontent.com/JulietaUla/Montserrat/master/fonts/ttf/Montserrat-ExtraBold.ttf || true
+          [ "$(stat -c%s fonts/Montserrat-ExtraBold.ttf 2>/dev/null || echo 0)" -gt 50000 ] || rm -f fonts/Montserrat-ExtraBold.ttf
 
       - name: Python packages
-        run: |
-          pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
+        run: pip install -r requirements.txt
 
       - name: Build reels
         env:
