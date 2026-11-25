@@ -45,4 +45,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete pilot -y --cleanup-tag || true
-          gh release create pilot pilot/pilot_ai.mp4 pilot/reel/index.html --title "Пилот новой сборки" --notes "тестовый ролик, не для публикации"
+          cd pilot && zip -j snaps.zip reel/.hyperframes/artifacts/snapshots/*/*.png || true
+          for i in 1 2 3 4; do
+            gh release create pilot pilot_ai.mp4 reel/index.html snaps.zip --title "Пилот новой сборки" --notes "тестовый ролик, не для публикации" && break
+            sleep 10; gh release delete pilot -y --cleanup-tag || true
+          done

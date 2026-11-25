@@ -179,7 +179,7 @@ def build():
             spans += f'<span class="w" id="{wid}">{esc(w["w"])}<i></i></span> '
             js.append(f'tl.set("#{wid}",{{color:"{INK}"}},{w["s"]:.3f});')
             js.append(f'tl.fromTo("#{wid} i",{{scaleX:0}},{{scaleX:1,duration:0.12}},{w["s"]:.3f});')
-            js.append(f'tl.set("#{wid} i",{{scaleX:0}},{w["e"] + 0.02:.3f});')
+            js.append(f'tl.set("#{wid} i",{{scaleX:0}},{max(w["e"] + 0.02, w["s"] + 0.14):.3f});')
         subs.append(f'<div class="sub clip" data-start="{a:.3f}" data-duration="{round(b - a, 3)}" data-track-index="3">{spans}</div>')
 
     # персонаж: рот, моргание, взмахи, покачивание, переезды между сценами
