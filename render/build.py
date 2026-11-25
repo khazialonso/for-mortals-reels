@@ -248,7 +248,8 @@ def compose(item, scenes, chars, st, en, cover, logo, dom, out):
                 J(f'tl.from("#{sid}r{j} img",{{scale:0,rotation:-40,duration:0.45,ease:"back.out(2.2)"}},{t:.3f});')
         elif k == "number":
             val, _, cap = s["screen"].partition(" / ")
-            v += f'<div class="num" id="{sid}n">{esc(val.strip())}</div><div class="cap" id="{sid}c">{esc(cap.strip())}</div>'
+            nfs = min(250, int(1750 / max(1, len(val.strip()))))
+            v += f'<div class="num" id="{sid}n" style="font-size:{nfs}px">{esc(val.strip())}</div><div class="cap" id="{sid}c">{esc(cap.strip())}</div>'
             v += icon(ic[0], "left:800px;top:330px;width:200px", "f1")
             J(f'tl.from("#{sid}n",{{scale:0.5,opacity:0,duration:0.5,ease:"back.out(2)"}},{a + 0.1:.3f});')
             J(f'tl.from("#{sid}c",{{opacity:0,y:40,duration:0.3}},{a + 0.45:.3f});')
@@ -383,12 +384,12 @@ html, body {{ width:{W}px; height:{H}px; overflow:hidden; background:{C['bg']}; 
 .row {{ display:flex; align-items:center; gap:34px; margin:0 60px 34px; background:{C['card']}; color:{C['cardink']}; border-radius:48px; padding:34px 40px; font-size:58px; font-weight:800; line-height:1.1; box-shadow:{C['shadow']}; }}
 .row img {{ width:150px; height:150px; flex:none; }}
 .row b {{ width:120px; height:120px; border-radius:60px; background:{C['accent2']}; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }}
-.num {{ position:absolute; left:60px; right:60px; top:20px; font-weight:900; font-size:250px; letter-spacing:-10px; color:{C['accent']}; line-height:1; }}
+.num {{ position:absolute; left:60px; right:60px; top:20px; font-weight:900; font-size:250px; letter-spacing:-6px; color:{C['accent']}; line-height:1; white-space:nowrap; }}
 .cap {{ position:absolute; left:60px; right:280px; top:330px; font-size:60px; font-weight:700; color:{C['muted']}; line-height:1.15; }}
 .cmpwrap {{ position:absolute; left:60px; right:60px; top:60px; display:flex; gap:110px; }}
 .cmp {{ flex:1; background:{C['card']}; color:{C['cardink']}; border-radius:44px; padding:46px 40px; box-shadow:{C['shadow']}; }}
 .cmp small {{ display:block; font-size:46px; font-weight:700; color:#8A8378; margin-bottom:16px; }}
-.cmp b {{ display:block; font-size:84px; font-weight:900; letter-spacing:-2px; line-height:1.05; }}
+.cmp b {{ display:block; font-size:74px; font-weight:900; letter-spacing:-2px; line-height:1.05; white-space:nowrap; }}
 .cmp.hot {{ background:{C['accent']}; color:{C['hlink']}; }}
 .cmp.hot small {{ color:{C['hlink']}; opacity:0.85; }}
 .arrow {{ position:absolute; left:50%; top:130px; transform:translateX(-50%); font-size:110px; font-weight:900; color:{C['accent']}; }}
