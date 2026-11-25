@@ -28,8 +28,13 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-dejavu-core
           pip install requests
           npm i -g hyperframes
-          hyperframes --version || true
-          hyperframes --help || true
-          hyperframes render --help || true
-          hyperframes init --help || true
-          hyperframes lint --help || true
+          hyperframes doctor || true
+      - name: Explore
+        run: |
+          hyperframes init demo --example blank --resolution portrait --non-interactive --skip-skills --skip-transcribe
+          cd demo && find . -type f -not -path "*/node_modules/*" | head -50
+          for f in index.html hyperframes.json package.json; do echo "=== $f"; cat $f 2>/dev/null; done
+          hyperframes docs || true
+          hyperframes docs gsap || true
+          hyperframes docs composition || true
+          hyperframes render -o ../demo.mp4 -q draft && ls -la ../demo.mp4
