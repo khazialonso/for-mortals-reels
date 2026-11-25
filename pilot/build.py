@@ -196,10 +196,6 @@ def build():
     js.append(f'tl.to("#bob",{{y:-14,duration:0.45,ease:"sine.inOut",yoyo:true,repeat:{int(total / 0.45)}}},0);')
     for a in (0.2, starts[-1] + 0.1):
         js.append(f'tl.to("#arm",{{rotation:-16,svgOrigin:"114 252",duration:0.22,ease:"sine.inOut",yoyo:true,repeat:5}},{a:.3f});')
-    # сцена 1 — крупно по центру, дальше в угол
-    js.append('tl.set("#char",{x:300,y:-260,scale:1.25},0);')
-    js.append(f'tl.to("#char",{{x:0,y:0,scale:1,duration:0.5,ease:"power3.inOut"}},{starts[1] - 0.2:.3f});')
-    js.append(f'tl.to("#char",{{x:280,y:-300,scale:1.2,duration:0.5,ease:"power3.inOut"}},{starts[-1] - 0.1:.3f});')
     js.append(f'tl.from("#brows",{{y:-8,duration:0.2,yoyo:true,repeat:1}},{starts[1]:.3f});')
 
     seg = "".join(f'<div class="seg" id="pg{i}"><i></i></div>' for i in range(len(SCENES)))
