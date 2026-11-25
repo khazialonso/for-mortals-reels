@@ -40,13 +40,10 @@ jobs:
           cd pilot/reel && hyperframes render . -o ../pilot_ai.mp4 -q delivery
           ffprobe -v error -show_entries format=duration -of csv=p=0 ../pilot_ai.mp4
           hyperframes snapshot . || true
-      - name: Upload
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release delete pilot -y --cleanup-tag || true
-          cd pilot && zip -j snaps.zip reel/.hyperframes/artifacts/snapshots/*/*.png || true
-          for i in 1 2 3 4; do
-            gh release create pilot pilot_ai.mp4 reel/index.html snaps.zip --title "Пилот новой сборки" --notes "тестовый ролик, не для публикации" && break
-            sleep 10; gh release delete pilot -y --cleanup-tag || true
-          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pilot
+          path: |
+            pilot/pilot_ai.mp4
+            pilot/reel/index.html
+            pilot/reel/.hyperframes/artifacts/snapshots/
