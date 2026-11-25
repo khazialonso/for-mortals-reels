@@ -21,8 +21,8 @@ random.seed(7)
 THEMES = {
     "A": dict(bg="#FFFFFF", ink="#111111", accent="#4074FF", dim="#C4C4C4", muted="#7A7A7A", card="#F2F5FC",
               cardink="#111111", blob="#4074FF", blobop=0.08, seg="#E8ECF5", hl="#4074FF", hlink="#111111", subcenter=False),
-    "B": dict(bg="#3D6BFF", ink="#FFFFFF", accent="#FFD23F", dim="rgba(255,255,255,0.5)", muted="rgba(255,255,255,0.8)",
-              card="#FFFFFF", cardink="#111111", blob="#7FA0FF", blobop=0.35, seg="rgba(255,255,255,0.3)", hl="#FFD23F",
+    "B": dict(bg="#0F1B4D", ink="#FFFFFF", accent="#FFD23F", dim="rgba(255,255,255,0.5)", muted="rgba(255,255,255,0.8)",
+              card="#FFFFFF", cardink="#111111", blob="#4074FF", blobop=0.45, seg="rgba(255,255,255,0.18)", hl="#FFD23F",
               hlink="#111111", subcenter=True),
 }
 
@@ -276,7 +276,7 @@ def build(fmt, spec, chars, st, en, have, cover, logo, out):
     emcss = (f".w em {{ position:absolute; left:-10px; right:-10px; top:4px; bottom:4px; background:{T['hl']}; border-radius:14px; transform:scaleX(0); z-index:-1; }}"
              if T["subcenter"] else
              f".w em {{ position:absolute; left:0; right:0; bottom:-2px; height:12px; background:{T['hl']}; transform:scaleX(0); transform-origin:0 50%; }}")
-    charcss = ("#char { position:absolute; left:-110px; top:1420px; width:600px; height:750px; }" if T["subcenter"]
+    charcss = ("#char { position:absolute; left:-110px; top:1390px; width:640px; height:800px; }" if T["subcenter"]
                else "#char { position:absolute; left:-120px; top:1110px; width:760px; height:950px; }")
     page = f"""<!doctype html>
 <html lang="ru" data-resolution="portrait">
@@ -298,7 +298,7 @@ html, body {{ width:{W}px; height:{H}px; overflow:hidden; background:{T['bg']}; 
 .head {{ position:absolute; left:60px; right:60px; top:230px; }}
 .ln {{ font-weight:900; font-size:104px; line-height:1.08; letter-spacing:-3px; }}
 .mk {{ --u:1; position:relative; display:inline-block; }}
-.mk::after {{ content:""; position:absolute; left:0; right:0; bottom:2px; height:22px; background:{T['accent']}; transform:scaleX(var(--u)); transform-origin:0 50%; z-index:-1; }}
+.mk::after {{ content:""; position:absolute; left:0; right:0; bottom:8px; height:16px; background:{T['accent']}; transform:scaleX(var(--u)); transform-origin:0 50%; z-index:-1; }}
 .vz {{ position:absolute; left:0; right:0; top:560px; height:660px; }}
 .ic {{ position:absolute; }}
 .qmark {{ position:absolute; left:700px; top:-10px; font-size:300px; font-weight:900; color:{T['accent']}; transform:rotate(14deg); }}
