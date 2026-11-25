@@ -1,0 +1,35 @@
+name: vendor-icons
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "render/icons.py"
+
+permissions:
+  contents: write
+
+jobs:
+  icons:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pillow
+      - name: Download and shrink
+        run: |
+          python render/icons.py
+          python -c "
+          from PIL import Image; import glob
+          for p in glob.glob('render/icons/*.png'):
+              im=Image.open(p); im.thumbnail((256,256)); im.save(p, optimize=True)
+          "
+      - name: Commit
+        run: |
+          git config user.name reels-bot && git config user.email reels-bot@users.noreply.github.com
+          git add render/icons
+          git diff --cached --quiet || git commit -m "иконки Fluent Emoji (MIT)"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 10; done
