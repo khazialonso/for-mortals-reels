@@ -1,0 +1,30 @@
+{
+  "channel": "AI for Mortals",
+  "handle": "@ai_for_mortals",
+  "voice_id": "kwajW3Xh5svCeKU5ky2S",
+  "link": "https://www.bensbites.com/p/commitment-issues-app-edition",
+  "source": "Ben's Bites",
+  "domain": "bensbites.com",
+  "scenes": [
+    {"kind": "hook", "text": "Нужного приложения нет в магазине?",
+     "lines": ["Нет нужного", "приложения?"], "mark": 1,
+     "icons": [["Mobile phone", "mobile_phone"], ["Magnifying glass tilted left", "magnifying_glass_tilted_left"]], "emotion": "surprised"},
+    {"kind": "source", "text": "Автор рассылки Бен Тоссел попросил ИИ-помощника, который сам выполняет задачи, написать ему свои программы.",
+     "lines": ["ИИ пишет программы", "под вас"], "mark": 0,
+     "icons": [["Robot", "robot"]]},
+    {"kind": "list", "text": "Получились часы в верхней панели мак, которые сразу пересчитывают время в разных городах, дополнение для снимка страницы целиком и набор для хрома с мини-окном для ссылок, вертикальными вкладками и блокировкой рекламы.",
+     "lines": ["Что получилось"],
+     "items": [["часы", "Часы с поясами в панели Mac", ["Alarm clock", "alarm_clock"]],
+               ["дополнение", "Снимок страницы целиком", ["Camera with flash", "camera_with_flash"]],
+               ["набор", "Набор для Chrome", ["Puzzle piece", "puzzle_piece"]]]},
+    {"kind": "tip", "text": "Совет автора: пусть помощник сам всё поставит и проверит.",
+     "lines": ["Совет автора"], "quote": "Пусть помощник сам всё поставит и проверит",
+     "icons": [["Light bulb", "light_bulb"], ["Check mark button", "check_mark_button"]]},
+    {"kind": "big", "text": "Похоже, программа под одного человека стала доступной.",
+     "lines": ["Программа", "под одного", "человека"], "mark": 1,
+     "icons": [["Sparkles", "sparkles"], ["Bust in silhouette", "bust_in_silhouette"]], "emotion": "happy"},
+    {"kind": "final", "text": "Это опыт одного автора.",
+     "lines": ["Это опыт", "одного автора"], "note": "Разбор в Telegram",
+     "icons": [["Bookmark", "bookmark"]]}
+  ]
+}

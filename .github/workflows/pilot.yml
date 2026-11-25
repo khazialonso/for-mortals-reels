@@ -28,22 +28,21 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-dejavu-core
           pip install requests
           npm i -g hyperframes
-      - name: Build composition
+      - name: Build v2 (A и B)
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
         run: |
-          cd pilot && python build.py
-          cd reel && printf '{"paths":{"assets":"assets"}}' > hyperframes.json
-          hyperframes lint . || true
+          cd pilot && python build2.py
+          for f in A B; do printf '{"paths":{"assets":"assets"}}' > reel_$f/hyperframes.json; done
+          hyperframes lint reel_A | tail -5 || true
       - name: Render
         run: |
-          cd pilot/reel && hyperframes render . -o ../pilot_ai.mp4 -q delivery
-          ffprobe -v error -show_entries format=duration -of csv=p=0 ../pilot_ai.mp4
-          hyperframes snapshot . || true
+          cd pilot
+          hyperframes render reel_A -o v2_A.mp4 -q delivery
+          hyperframes render reel_B -o v2_B.mp4 -q delivery
       - name: Publish to branch pilot-output
         run: |
-          mkdir -p /tmp/out && cp pilot/pilot_ai.mp4 pilot/reel/index.html /tmp/out/
-          cp pilot/reel/.hyperframes/artifacts/snapshots/*/*.png /tmp/out/ || true
+          mkdir -p /tmp/out && cp pilot/v2_A.mp4 pilot/v2_B.mp4 pilot/reel_A/index.html /tmp/out/
           cd /tmp/out && git init -q -b pilot-output && git add -A
-          git -c user.name=reels-bot -c user.email=reels-bot@users.noreply.github.com commit -q -m "pilot output"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" pilot-output
+          git -c user.name=reels-bot -c user.email=reels-bot@users.noreply.github.com commit -q -m "pilot v2 output"
+          for i in 1 2 3; do git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" pilot-output && break; sleep 15; done
