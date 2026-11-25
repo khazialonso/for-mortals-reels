@@ -28,13 +28,21 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-dejavu-core
           pip install requests
           npm i -g hyperframes
-          hyperframes doctor || true
-      - name: Explore
+      - name: Build composition
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
         run: |
-          hyperframes init demo --example blank --resolution portrait --non-interactive --skip-skills --skip-transcribe
-          cd demo && find . -type f -not -path "*/node_modules/*" | head -50
-          for f in index.html hyperframes.json package.json; do echo "=== $f"; cat $f 2>/dev/null; done
-          hyperframes docs || true
-          hyperframes docs gsap || true
-          hyperframes docs composition || true
-          hyperframes render -o ../demo.mp4 -q draft && ls -la ../demo.mp4
+          cd pilot && python build.py
+          cd reel && printf '{"paths":{"assets":"assets"}}' > hyperframes.json
+          hyperframes lint . || true
+      - name: Render
+        run: |
+          cd pilot/reel && hyperframes render . -o ../pilot_ai.mp4 -q delivery
+          ffprobe -v error -show_entries format=duration -of csv=p=0 ../pilot_ai.mp4
+          hyperframes snapshot . || true
+      - name: Upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete pilot -y --cleanup-tag || true
+          gh release create pilot pilot/pilot_ai.mp4 pilot/reel/index.html --title "Пилот новой сборки" --notes "тестовый ролик, не для публикации"
