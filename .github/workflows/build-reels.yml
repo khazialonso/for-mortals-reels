@@ -20,34 +20,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: ffmpeg and font
+      - name: Tools
         run: |
-          mkdir -p "$HOME/bin" fonts
-          if ! command -v ffmpeg >/dev/null; then
-            curl -fsSL --retry 3 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ff.tar.xz \
-              && tar -xf ff.tar.xz && cp ffmpeg-*-static/ffmpeg ffmpeg-*-static/ffprobe "$HOME/bin/" \
-              || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
-          fi
-          echo "$HOME/bin" >> "$GITHUB_PATH"
-          curl -fsSL --retry 3 -o fonts/Montserrat-ExtraBold.ttf \
-            https://raw.githubusercontent.com/JulietaUla/Montserrat/master/fonts/ttf/Montserrat-ExtraBold.ttf || true
-          [ "$(stat -c%s fonts/Montserrat-ExtraBold.ttf 2>/dev/null || echo 0)" -gt 50000 ] || rm -f fonts/Montserrat-ExtraBold.ttf
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          pip install requests
+          npm i -g hyperframes@0.9.94
 
-      - name: Python packages
-        run: pip install -r requirements.txt
-
-      - name: Build reels
+      - name: Build reels (v3: HyperFrames + ElevenLabs)
         env:
           REELS_WEBAPP_URL: ${{ secrets.REELS_WEBAPP_URL }}
           REELS_KEY: ${{ secrets.REELS_KEY }}
-          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           GH_TOKEN: ${{ github.token }}
-        run: python build.py
+        run: python render/build.py
 
       - name: Save build log
         if: always()
@@ -57,5 +50,5 @@ jobs:
             git config user.email "reels-bot@users.noreply.github.com"
             git add log
             git commit -m "build log $(date -u +%F)"
-            git push
+            for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 10; done
           fi
