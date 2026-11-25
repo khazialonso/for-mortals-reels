@@ -19,7 +19,7 @@ FOLDERS = [
     "Office building", "Briefcase", "Handshake", "Bust in silhouette", "Busts in silhouette", "Thumbs up",
     "Clapping hands", "Flexed biceps", "Fire", "High voltage", "Glowing star", "Trophy", "1st place medal",
     "Bullseye", "Hundred points", "Red question mark", "Red exclamation mark", "Party popper", "Gem stone",
-    "Crown", "Hot beverage", "Stop sign", "Prohibited", "Receipt", "Abacus", "Scales", "Calendar",
+    "Crown", "Hot beverage", "Stop sign", "Prohibited", "Receipt", "Abacus", "Calendar", "Balance scale",
 ]
 
 

@@ -1,0 +1,42 @@
+name: reels-test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "render/build.py"
+      - "render/chars/**"
+      - "render/test_items.json"
+      - ".github/workflows/reels-test.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tools
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          pip install requests
+          npm i -g hyperframes@0.9.94
+      - name: Build test reels
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          TEST_ITEMS: render/test_items.json
+        run: python render/build.py
+      - name: Publish to branch pilot-output
+        run: |
+          cd out && git init -q -b pilot-output && git add -A
+          git -c user.name=reels-bot -c user.email=reels-bot@users.noreply.github.com commit -q -m "reels test"
+          for i in 1 2 3; do git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" pilot-output && break; sleep 15; done
