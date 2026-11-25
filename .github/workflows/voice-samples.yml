@@ -9,7 +9,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "voice/**"
+      - "voice/samples.py"
       - ".github/workflows/voice-samples.yml"
 
 permissions:

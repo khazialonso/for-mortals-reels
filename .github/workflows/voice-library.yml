@@ -1,0 +1,33 @@
+name: voice-library
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Модель ElevenLabs"
+        default: "eleven_multilingual_v2"
+  push:
+    branches: [main]
+    paths:
+      - "voice/library.py"
+      - ".github/workflows/voice-library.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  library:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Русские голоса
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          TTS_MODEL: ${{ github.event.inputs.model || 'eleven_multilingual_v2' }}
+          GH_TOKEN: ${{ github.token }}
+        run: python voice/library.py
