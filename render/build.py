@@ -231,7 +231,10 @@ def compose(item, scenes, chars, st, en, cover, logo, dom, out):
             v += icon(ic[1], "left:560px;top:230px;width:320px;transform:rotate(12deg)", "f2")
         elif k == "source":
             h = head(sid, a, s["screen"])
-            img = f'<img class="cov" src="{cover}"/>' if cover else '<div class="cov ph"></div>'
+            if cover:
+                img = f'<img class="cov" src="{cover}"/>'
+            else:  # сайт не отдал обложку: крупный логотип и адрес
+                img = (f'<div class="cov ph">' + (f'<img src="{logo}"/>' if logo else "") + f'<span>{esc(dom)}</span></div>')
             lg = f'<img class="lg" src="{logo}"/>' if logo else ""
             v += (f'<div class="browser" id="{sid}br"><div class="bar"><i></i><i></i><i></i><span>{lg}{esc(dom)}</span></div>'
                   f'<div class="covwrap">{img}</div></div>')
@@ -380,7 +383,9 @@ html, body {{ width:{W}px; height:{H}px; overflow:hidden; background:{C['bg']}; 
 .lg {{ width:30px; height:30px; border-radius:6px; }}
 .covwrap {{ position:absolute; left:0; right:0; top:76px; bottom:0; overflow:hidden; }}
 .cov {{ width:100%; height:100%; object-fit:cover; }}
-.cov.ph {{ background:linear-gradient(135deg,#E3EBFF,#BFD2FF); }}
+.cov.ph {{ background:linear-gradient(135deg,#E3EBFF,#BFD2FF); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }}
+.cov.ph img {{ width:200px; height:200px; border-radius:40px; }}
+.cov.ph span {{ font-size:64px; font-weight:900; color:#111; }}
 .row {{ display:flex; align-items:center; gap:34px; margin:0 60px 34px; background:{C['card']}; color:{C['cardink']}; border-radius:48px; padding:34px 40px; font-size:58px; font-weight:800; line-height:1.1; box-shadow:{C['shadow']}; }}
 .row img {{ width:150px; height:150px; flex:none; }}
 .row b {{ width:120px; height:120px; border-radius:60px; background:{C['accent2']}; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }}
