@@ -22,6 +22,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from numerals import tokens as subtitle_tokens  # noqa: E402
+import spelling  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 ICONS = HERE / "icons"
@@ -68,9 +69,12 @@ def run(cmd, cwd=None):
 # ---------- сцены ----------
 
 def parse_scenes(raw, voice):
-    scenes = []
+    scenes, spell = [], {}
     for line in str(raw).strip().splitlines():
         if not line.strip():
+            continue
+        if line.strip().lower().startswith("написание"):
+            spell.update(spelling.parse_line(line))
             continue
         p = [x.strip() for x in re.split(r"\s*\|\s*", line.strip(), maxsplit=4)]
         if len(p) < 5:
@@ -95,7 +99,7 @@ def parse_scenes(raw, voice):
             out.append({"kind": "list", "items": [s], "icons": [], "screen": "", "text": None})
         else:
             out.append(s)
-    return out
+    return out, spell
 
 
 def lines_of(screen):
@@ -196,7 +200,7 @@ def mouth_track(chars, st, en):
 
 # ---------- композиция ----------
 
-def compose(item, scenes, chars, st, en, cover, logo, dom, out):
+def compose(item, scenes, chars, st, en, cover, logo, dom, out, spell=None):
     C = CHANNELS[item["table"]]
     rnd = random.Random(item.get("row", 1))
     words = words_from(chars, st, en)
@@ -294,7 +298,7 @@ def compose(item, scenes, chars, st, en, cover, logo, dom, out):
 
     # субтитры
     chunks, cur = [], []
-    for w in subtitle_tokens(words):
+    for w in subtitle_tokens(spelling.apply(words, spell)):
         cur.append(w)
         if len(cur) >= 3 or re.search(r"[.,!?:;]$", w["w"]):
             chunks.append(cur)
@@ -440,7 +444,7 @@ def build(item, work):
         raise ValueError(f"неизвестная таблица {item['table']}")
     C = CHANNELS[item["table"]]
     voice = str(item["voice"]).strip()
-    scenes = parse_scenes(item["scenes"], voice)
+    scenes, spell = parse_scenes(item["scenes"], voice)
     proj = work / "proj"
     (proj / "assets").mkdir(parents=True)
     chars, st, en = tts(voice, C["voice"], proj)
@@ -448,7 +452,7 @@ def build(item, work):
         for k in s.get("icons", []) + [i for it in s.get("items", []) for i in it["icons"]]:
             shutil.copy(ICONS / f"{k}.png", proj / "assets" / f"i_{k}.png")
     cover, logo, dom = page_assets(item["link"], proj / "assets")
-    total, starts = compose(item, scenes, chars, st, en, cover, logo, dom, proj)
+    total, starts = compose(item, scenes, chars, st, en, cover, logo, dom, proj, spell)
     log(f"сцены: {[round(x, 1) for x in starts]}, длина {total} c, обложка {'да' if cover else 'нет'}")
     video = work / "reel.mp4"
     run(["hyperframes", "render", str(proj), "-o", str(video), "-q", "delivery"])
