@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "render/build.py"
+      - "render/numerals.py"
       - "render/chars/**"
       - "render/test_items.json"
       - ".github/workflows/reels-test.yml"

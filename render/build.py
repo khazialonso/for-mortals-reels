@@ -20,6 +20,9 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from numerals import tokens as subtitle_tokens  # noqa: E402
+
 HERE = Path(__file__).resolve().parent
 ICONS = HERE / "icons"
 KEY = os.environ.get("ELEVENLABS_API_KEY", "")
@@ -291,7 +294,7 @@ def compose(item, scenes, chars, st, en, cover, logo, dom, out):
 
     # субтитры
     chunks, cur = [], []
-    for w in words:
+    for w in subtitle_tokens(words):
         cur.append(w)
         if len(cur) >= 3 or re.search(r"[.,!?:;]$", w["w"]):
             chunks.append(cur)
