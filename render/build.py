@@ -120,7 +120,7 @@ def tts(text, voice, out):
             r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}/with-timestamps",
                               headers={"xi-api-key": KEY},
                               json={"text": text, "model_id": MODEL,
-                                    "voice_settings": {"stability": 0.4, "similarity_boost": 0.8, "style": 0.35}},
+                                    "voice_settings": {"stability": 0.4, "similarity_boost": 0.8, "style": 0.35, "speed": 1.2}},
                               timeout=180)
             r.raise_for_status()
             d = r.json()
