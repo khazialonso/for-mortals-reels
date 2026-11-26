@@ -5,6 +5,10 @@ on:
     - cron: "40 4 * * *"   # 11:40 по Самуи, после агента REELS (11:17)
     - cron: "40 7 * * *"   # 14:40 по Самуи, повтор на случай сбоя
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-reels.yml"
 
 permissions:
   contents: write
@@ -34,7 +38,7 @@ jobs:
           pip install requests
           npm i -g hyperframes@0.9.94
 
-      - name: Build reels (v3: HyperFrames + ElevenLabs)
+      - name: "Build reels (v3, HyperFrames + ElevenLabs)"
         env:
           REELS_WEBAPP_URL: ${{ secrets.REELS_WEBAPP_URL }}
           REELS_KEY: ${{ secrets.REELS_KEY }}
